@@ -9,9 +9,9 @@ class Tools {
     });
 
     return new Promise((resolve) => {
-      Tools.print(message,false)
+      Tools.print(message, false);
       rl.question(message, (answer) => {
-        Tools.print(">>>>  " + answer,false)
+        Tools.print(">>>>  " + answer, false);
         resolve(answer);
         rl.close();
       });
@@ -19,62 +19,41 @@ class Tools {
   }
 
   /// LOGS !!!!!!!!!!!!!!!!!!! --------------------------------------------------->>>>
-  static async print(message,print = true) {
-    if (print == true){
-      console.log(message)
+  static async print(message, print = true) {
+    if (print == true) {
+      console.log(message);
     }
-    
-    try {
-      const fileExists = await fs
-        .access("logs/output.txt")
-        .then(() => true)
-        .catch(() => false);
-      if (!fileExists) {
-        await fs.writeFile("logs/output.txt", message + "\n");
-      } else {
-        const existingContent = await fs.readFile("logs/output.txt", "utf-8");
-        const newContent = existingContent + message + "\n";
-        await fs.writeFile("logs/output.txt", newContent);
-      }
-    } catch (error) {
-      console.error("Error handling file:", error.message);
+    this.insterOutput(message);
+  }
+  static async insterOutput(message) {
+    const fileExists = await fs
+      .access("logs/output.txt")
+      .then(() => true)
+      .catch(() => false);
+    if (!fileExists) {
+      await fs.writeFile("logs/output.txt", message + "\n");
+    } else {
+      const existingContent = await fs.readFile("logs/output.txt", "utf-8");
+      const newContent = existingContent + message + "\n";
+      await fs.writeFile("logs/output.txt", newContent);
     }
   }
-  static async eraseOutput() {
-    try {
-      await fs.unlink("logs/output.txt");
-    } catch (error) {
-      console.error("Error erasing output.txt:", error.message);
-    }
+  static async cleanOutput() {
+    await fs.writeFile("logs/output.txt", "");
   }
 
   static async saveOutputs(playerID) {
-    try {
-      const currentOutput = await fs.readFile("logs/output.txt", "utf-8");
-
-      await fs.writeFile(`logs/logsIndex[${playerID}].txt`, currentOutput);
-
-      console.log(`logs/logsIndex[${playerID}].txt saved successfully.`);
-    } catch (error) {
-      console.error(`Error saving logsIndex[${playerID}].txt:`, error.message);
-    }
+    const currentOutput = await fs.readFile("logs/output.txt", "utf-8");
+    await fs.writeFile(`logs/logsIndex[${playerID}].txt`, currentOutput);
   }
 
   static async loadOutput(playerID) {
-    try {
-      const fileContent = await fs.readFile(
-        `logs/logsIndex[${playerID}].txt`,
-        "utf-8"
-      );
-      await fs.writeFile("logs/output.txt", fileContent);
-      console.log(
-        `logsIndex[${playerID}].txt loaded into output.txt successfully.`
-      );
-    } catch (error) {
-      console.error(`Error loading logsIndex${playerID}.txt:`, error.message);
-    }
+    const fileContent = await fs.readFile(
+      `logs/logsIndex[${playerID}].txt`,
+      "utf-8"
+    );
+    await fs.writeFile("logs/output.txt", fileContent);
   }
 }
 
 module.exports = Tools;
-

@@ -44,7 +44,7 @@ class Main {
   }
 
   static async newGame() {
-    await Tools.eraseOutput();
+    await Tools.cleanOutput();
     await Tools.print("Welcome new Codemoner !");
     await Tools.print("You're about to discover the wonderfull world of Codemon.");
 

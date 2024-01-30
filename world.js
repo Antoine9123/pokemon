@@ -10,7 +10,6 @@ class World {
     await Tools.print("Can you reach me ?")
     await Tools.print("I'll let you chose one Codemon.")
     await Tools.print("Choose wisely !")
-
   }
 }
 
