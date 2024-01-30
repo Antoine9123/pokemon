@@ -1,6 +1,7 @@
-const readline = require("readline");
 const SavesManager = require("./saves_manager")
+const Tools = require("./tools")
 const Player = require("./player");
+const World = require("./world");
 
 class Main {
   static async play() {
@@ -20,10 +21,10 @@ class Main {
       console.log("3. Exit");
 
       let answer;
-      answer = await this.input("\nWhat would you like to do ?\n");
+      answer = await Tools.input("\nWhat would you like to do ?\n", false);
 
       if (answer == 1) {
-        console.log(">>> Continue");
+        await this.continue()
       } else if (answer == 2) {
         await this.newGame();
       } else if (answer == 3) {
@@ -34,30 +35,25 @@ class Main {
     }
   }
 //// NEW / CONTINUE ---------------------------------------------------------------------------->
-  continue() {}
+  static async continue() {
+    await SavesManager.displayPlayers()
+    let indexPlayer = await Tools.input("Which character do you want to play ?")
+    const codemoner = await SavesManager.loadPlayer(indexPlayer)
+    World.enterTheWorld(codemoner)
 
-  static async newGame() {
-    console.log("Welcome new Codemoner !");
-    console.log("You're about to discover the wonderfull world of Codemon.");
-    let name = await this.input("Can you tell me your name ?\n");
-    const codemoner = new Player(name);
-    await SavesManager.savePlayer(codemoner)
-    
   }
 
-//// INPUT ------------------------------------------------------------------------------------->
-  static input(message) {
-    const rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout,
-    });
+  static async newGame() {
+    await Tools.eraseOutput();
+    await Tools.print("Welcome new Codemoner !");
+    await Tools.print("You're about to discover the wonderfull world of Codemon.");
 
-    return new Promise((resolve) => {
-      rl.question(message, (answer) => {
-        resolve(answer);
-        rl.close();
-      });
-    });
+    let name = await Tools.input("Can you tell me your name ?\n");
+    const codemoner = new Player(name);
+
+    await SavesManager.savePlayer(codemoner)
+    World.enterTheWorld(codemoner)
+    
   }
 }
 
