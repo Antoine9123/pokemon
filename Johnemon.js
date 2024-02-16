@@ -43,12 +43,13 @@ const pokemonNames = [
 
 class Johnemon {
   constructor() {
-    this.isAlive = true
+    this.ID = null
+    this.isAlive = 1
     this.name = this.generateRandomName();
     this.level = 1;
     this.experienceMeter = 0;
-    this.attackRange = this.getRandomNumber(1, 8);
-    this.defenseRange = this.getRandomNumber(1, 3);
+    this.attackRange = this.getRandomNumber(3, 8);
+    this.defenseRange = this.getRandomNumber(2, 3);
     this.healthPool = this.getRandomNumber(10, 30);
     this.health = this.healthPool
     this.catchPhrase = this.generateCatchPhrase();
@@ -118,9 +119,9 @@ class Johnemon {
 
   async evolve() {
     this.level += 1;
-    const attackIncrease = this.getRandomNumber(1, 5);
-    const defenseIncrease = this.getRandomNumber(1, 5);
-    const healthIncrease = this.getRandomNumber(1, 5);
+    const attackIncrease = this.getRandomNumber(1, 6);
+    const defenseIncrease = this.getRandomNumber(1, 6);
+    const healthIncrease = this.getRandomNumber(1, 6);
 
     this.attackRange += attackIncrease;
     this.defenseRange += defenseIncrease;

@@ -1,5 +1,6 @@
 const JohnemonArena = require("./JohnemonArena");
-const DataManager = require("./DataManager");
+const PlayerManager = require("./PlayerManager");
+const DBM = require("./DataBaseManager");
 const Terminal = require("./Terminal");
 
 class JohnemonWorld {
@@ -11,6 +12,8 @@ class JohnemonWorld {
     let world = true;
     while (world == true) {
       let hasAction = true;
+      PlayerManager.saveMaster(this.MASTER);
+
       await Terminal.print("----------------------------------", this.MASTER);
       await Terminal.print(`D A Y ${this.MASTER.day}`, this.MASTER);
       await Terminal.print("----------------------------------", this.MASTER);
@@ -28,6 +31,7 @@ class JohnemonWorld {
       await Terminal.print("\n--- LOGS ---", this.MASTER);
       await Terminal.print("8. Show logs [FREE][!FULL INFO!]", this.MASTER);
       await Terminal.print("(press 0 to quit)", this.MASTER);
+      
       let choice;
       while (true) {
         choice = await Terminal.input("\nChoose an option [1-8]: ", this.MASTER);
@@ -48,7 +52,7 @@ class JohnemonWorld {
 
         case "2":
           if (this.MASTER.healingItems <= 0) {
-            await Terminal.print("\nYou don't have any healing items, sorry.", this);
+            await Terminal.print("\nYou don't have any healing items, sorry.", this.MASTER);
           } else {
             hasAction = await this.MASTER.healJohnemon();
           }
@@ -56,7 +60,7 @@ class JohnemonWorld {
 
         case "3":
           if (this.MASTER.reviveItems <= 0) {
-            await Terminal.print("\nYou don't have any revive items, sorry.", this);
+            await Terminal.print("\nYou don't have any revive items, sorry.", this.MASTER);
           } else {
             hasAction = await this.MASTER.reviveJohnemon();
           }
@@ -81,16 +85,22 @@ class JohnemonWorld {
           if (this.MASTER.johnemonCollection.length > 1) {
             hasAction = await this.MASTER.releaseJohnemon();
           } else {
-            await Terminal.print("\nSorry, it's your last Johnemon, you can't release it.")
-            await Terminal.print("Please, don't stay alone... You need company.")
+            await Terminal.print("\nSorry, it's your last Johnemon, you can't release it.", this.MASTER)
+            await Terminal.print("Please, don't stay alone... You need company.", this.MASTER)
           }
 
           break;
 
         case "8":
-          for (let i = 0; i < this.MASTER.logs.length; i++) {
-            console.log(this.MASTER.logs[i]);
-          }
+          let logs = await DBM.executeQuery(`
+          SELECT content, dateLog 
+          FROM logs
+          WHERE userID = '${this.MASTER.ID}'
+          ORDER BY id;`)
+          
+          logs.forEach(log => {
+            console.log(`${log['content']}`)
+          });
           await Terminal.print("--------------------------------------");
           await Terminal.print("LOGGED ABOVE--------------------------");
           await Terminal.print("--------------------------------------\n\n\n\n");
@@ -105,7 +115,6 @@ class JohnemonWorld {
 
   async oneDayPasses() {
     this.MASTER.day += 1;
-    DataManager.saveMaster(this.MASTER);
   }
 
   async randomizeEvent() {

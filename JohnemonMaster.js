@@ -1,14 +1,15 @@
 const Terminal = require("./Terminal");
+const DBM = require("./DataBaseManager");
 
 class JohnemonMaster {
   constructor(name) {
+    this.ID = null;
     this.name = name;
     this.johnemonCollection = [];
     this.healingItems = 5;
     this.reviveItems = 3;
     this.JOHNEBALLS = 10;
     this.day = 1;
-    this.logs = [];
   }
 
   async healJohnemon() {
@@ -21,8 +22,9 @@ class JohnemonMaster {
     if (index == -1) {
       return true;
     }
+    
     const selectedJohnemon = this.johnemonCollection[index];
-    if (selectedJohnemon.isAlive) {
+    if (selectedJohnemon.isAlive == 1) {
       this.healingItems -= 1;
       selectedJohnemon.health = selectedJohnemon.healthPool;
       await Terminal.print(`\n${selectedJohnemon.name} has been healed`, this);
@@ -46,7 +48,7 @@ class JohnemonMaster {
     const selectedJohnemon = this.johnemonCollection[index];
     if (!selectedJohnemon.isAlive) {
       this.reviveItems -= 1;
-      selectedJohnemon.isAlive = true;
+      selectedJohnemon.isAlive = 1;
       selectedJohnemon.health = 1;
       await Terminal.print(`${selectedJohnemon.name} has been resurrected`, this);
       return false;
@@ -90,7 +92,10 @@ class JohnemonMaster {
     if (index === -1) {
       return true;
     }
+    let johnID = this.johnemonCollection[index].ID
+    await DBM.executeQuery(`DELETE FROM johnemon WHERE id = '${johnID}';`)
     this.johnemonCollection.pop(index);
+    
     return true;
   }
 
@@ -99,7 +104,7 @@ class JohnemonMaster {
     await Terminal.print(`------------------------------`, this);
     for (let i = 0; i < this.johnemonCollection.length; i++) {
       let john = this.johnemonCollection[i];
-      await Terminal.print(`${john.isAlive == true ? "[LIVE]" : "[DEAD]"}`, this);
+      await Terminal.print(`${john.isAlive == 1 ? "[LIVE]" : "[DEAD]"}`, this);
       await Terminal.print(`${i + 1}. ${john.name} LVL ${john.level}`, this);
       await Terminal.print(
         ` ATK: ${john.attackRange}, DEF: ${john.defenseRange}, HP: ${john.health}/${john.healthPool}\n`,
@@ -108,8 +113,9 @@ class JohnemonMaster {
     }
   }
 
-  addLog(newLog) {
-    this.logs.push(newLog);
+  async addLog(newLog) {
+    newLog = String(newLog)
+    await DBM.executeQuery(`INSERT INTO logs (content, userID) VALUES ("${newLog}", ${this.ID});`);
   }
 }
 module.exports = JohnemonMaster;
